@@ -38,8 +38,25 @@ function App() {
     getNotes()
   }, [])
 
-  const deleteNote = (entry) => {
+  const deleteNote = async (entry) => {
     // Code for DELETE here
+    try {
+      await fetch(("http://localhost:4000/deleteNote/:" + entry._id), 
+      {method: "DELETE"})
+      .then(async (response) => {
+        if (!response.ok) {
+          console.log ("Delete failed: " + response.status)
+        } else {
+          await response.json().then((data) => {
+            deleteNoteState(data._id)
+          })
+        }
+      }) 
+    }
+    catch (error){
+
+      console.log("Delete function failed:", error)
+    }
   }
 
   const deleteAllNotes = () => {
@@ -72,8 +89,8 @@ function App() {
     setNotes((prevNotes) => [...prevNotes, {_id, title, content}])
   }
 
-  const deleteNoteState = () => {
-    // Code for modifying state after DELETE here
+  const deleteNoteState = (_id) => {
+    setNotes(notes.filter(n => n.id !== _id))
   }
 
   const deleteAllNotesState = () => {
@@ -81,7 +98,8 @@ function App() {
   }
 
   const patchNoteState = (_id, title, content) => {
-    // Code for modifying state after PATCH here
+    setNotes(notes.filter(n => n.id !== _id))
+    setNotes((prevNotes) => [...prevNotes, {_id, title, content}])
   }
 
   return (
@@ -130,7 +148,7 @@ function App() {
           initialNote={dialogNote}
           closeDialog={closeDialog}
           postNote={postNoteState}
-          // patchNote={patchNoteState}
+          patchNote={patchNoteState}
           />
 
       </header>
